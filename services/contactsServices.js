@@ -1,4 +1,5 @@
 import Contact from "../db/models/Contact.js";
+import { nanoid } from 'nanoid'
 
 export async function getContactsList(userId) {
     try {
@@ -18,14 +19,13 @@ export async function getContactById(contactId, userId) {
     }
 }
 
-export async function addContact(data) {
+export async function addContact(name, email, phone, userId) {
     try {
-    const newContact = await Contact.create(data);
-    return newContact;
-  } catch (error) {
-    console.error("Error adding contact:", error.message);
-    return null;
-  }
+        return await Contact.create({ id: nanoid(), name, email, phone, owner: userId });
+    } catch (error) {
+        console.error("Error adding contact:", error);
+        throw error;
+    }
 }
 
 export async function updateContact(contactId, updatedData, userId) {
