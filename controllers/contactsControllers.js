@@ -53,19 +53,13 @@ export const deleteContact = async (req, res) => {
 };
 
 export const createContact = async (req, res) => {
-    const { name, email, phone } = req.body;
-
-    try {
-        if (!name || !email || !phone) {
-            throw HttpError(400, "Name, email, and phone are required");
-        }
-        const { id: userId } = req.user;
-        const result = await addContact(name, email, phone, userId);
-        res.status(201).json(result);
-    } catch (error) {
-        console.error("Error creating contact:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
+      try {
+    const { id: owner } = req.user;
+    const newContact = await addContact({ ...req.body, owner });
+    res.status(201).json(newContact);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const updateContact = async (req, res) => {
