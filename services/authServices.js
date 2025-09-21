@@ -28,6 +28,14 @@ async function updateUserToken(userId, token) {
     return await User.update({ token }, { where: { id: userId } });
 }
 
+async function updateUserVerification(userId, isVerified, verificationToken) {
+    return await User.update(
+        { verify: isVerified, verificationToken },
+        { where: { id: userId } }
+    );
+}
+
+
 async function updateUserAvatar(userId, avatarURL) {
     return await User.update({ avatarURL }, { where: { id: userId } });
 }
@@ -39,5 +47,6 @@ export default {
     generateToken,
     verifyToken,
     updateUserToken,
+    updateUserVerification,
     updateUserAvatar,
 };

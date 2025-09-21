@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import authService from '../services/authServices.js';
 import HttpError from '../helpers/HttpError.js';
+import { nanoid } from 'nanoid'
 
 export const register = async (req, res, next) => {
     try {
@@ -35,7 +36,48 @@ export const register = async (req, res, next) => {
         next(error);
     }
 };
+export const verifyEmail = async (req, res, next) => {
+    try {
+        const { verificationToken } = req.params;
 
+        if (!verificationToken) {
+            throw HttpError(400, 'Verification token is required');
+        }
+
+        const user = await authService.getUserByVerificationToken(
+            verificationToken
+        );
+
+        if (!user) {
+            throw HttpError(404, 'User not found');
+        }
+
+        await authService.updateUserVerification(user.id, true, null);
+
+        res.json({ message: 'Verification successful' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const sendVerificationEmail = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        const user = await authService.getUserByEmail(email);
+        if (!user) {
+            throw HttpError(404, 'User not found');
+        }
+        if (user.verify) {
+            throw HttpError(400, 'Verification has already been passed');
+        }
+        const verificationToken = nanoid();
+        await authService.updateUserVerification(user.id, false, verificationToken);
+        await emailSender.sendVerificationEmail(email, verificationToken);
+        res.json({ message: 'Verification email sent' });
+    } catch (error) {
+        next(error);
+    }
+};
 export const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
