@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import authService from '../services/authServices.js';
 import HttpError from '../helpers/HttpError.js';
+import emailSender from '../helpers/emailSender.js';
 import { nanoid } from 'nanoid'
 
 export const register = async (req, res, next) => {
