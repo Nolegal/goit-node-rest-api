@@ -24,7 +24,7 @@ export const register = async (req, res, next) => {
             d: 'identicon',
         });
         verificationToken=nanoid()
-        const user = await authService.createUser(email, hashedPassword, avatarURL,verificationToken);
+        const user = await authService.createUser({email, hashedPassword, avatarURL,verify:false,verificationToken});
         await emailSender.sendVerificationEmail(email, verificationToken);
        
 
@@ -33,6 +33,7 @@ export const register = async (req, res, next) => {
                 email: user.email,
                 subscription: user.subscription,
                 avatarURL: user.avatarURL,
+                verify: false,
                 verificationToken
             },
         });
