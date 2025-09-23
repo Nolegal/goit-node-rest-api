@@ -12,7 +12,7 @@ export const register = async (req, res, next) => {
         const { email, password } = req.body;
 
         const existingUser = await authService.getUserByEmail(email);
-
+        
         if (existingUser) {
             throw HttpError(409, 'Email in use');
         }
@@ -23,14 +23,17 @@ export const register = async (req, res, next) => {
             r: 'pg',
             d: 'identicon',
         });
-
-        const user = await authService.createUser(email, hashedPassword, avatarURL);
+        verificationToken=nanoid()
+        const user = await authService.createUser(email, hashedPassword, avatarURL,verificationToken);
+        await emailSender.sendVerificationEmail(email, verificationToken);
+       
 
         res.status(201).json({
             user: {
                 email: user.email,
                 subscription: user.subscription,
                 avatarURL: user.avatarURL,
+                verificationToken
             },
         });
     } catch (error) {
@@ -101,7 +104,9 @@ export const login = async (req, res, next) => {
         if (!result) {
             throw HttpError(401, 'Email or password is wrong');
         }
-
+        if (user.verify === false) {
+         return res.status(401).send({ message: "Please verify your email." });
+        }
         res.json({
             token,
             user: {
