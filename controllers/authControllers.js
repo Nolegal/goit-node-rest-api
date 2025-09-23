@@ -9,7 +9,8 @@ import { nanoid } from 'nanoid'
 
 export const register = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
+        const email = String(req.body.email).trim().toLowerCase();
+        const { password } = req.body;
 
         const existingUser = await authService.getUserByEmail(email);
         
@@ -23,8 +24,8 @@ export const register = async (req, res, next) => {
             r: 'pg',
             d: 'identicon',
         });
-        verificationToken=nanoid()
-        const user = await authService.createUser(email, hashedPassword, avatarURL,verificationToken);
+        const verificationToken=nanoid()
+        const user = await authService.createUser({email, hashedPassword, avatarURL,verify:false,verificationToken});
         await emailSender.sendVerificationEmail(email, verificationToken);
        
 
@@ -33,7 +34,7 @@ export const register = async (req, res, next) => {
                 email: user.email,
                 subscription: user.subscription,
                 avatarURL: user.avatarURL,
-                verificationToken
+
             },
         });
     } catch (error) {
@@ -105,7 +106,7 @@ export const login = async (req, res, next) => {
             throw HttpError(401, 'Email or password is wrong');
         }
         if (user.verify === false) {
-         return res.status(401).send({ message: "Please verify your email." });
+            throw HttpError(401, 'Please verify your email.' );
         }
         res.json({
             token,
