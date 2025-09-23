@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../db/models/User.js';
 
-async function createUser(email, password, avatarURL) {
-    const user = await User.create({ email, password, avatarURL });
+async function createUser(email, password, avatarURL,verify = false, verificationToken ) {
+    const user = await User.create({ email, password, avatarURL, verify, verificationToken});
     return user;
 }
 
