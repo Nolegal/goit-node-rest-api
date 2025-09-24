@@ -25,7 +25,7 @@ export const register = async (req, res, next) => {
             d: 'identicon',
         });
         const verificationToken=nanoid()
-        const user = await authService.createUser({email, hashedPassword, avatarURL,verify:false,verificationToken});
+        const user = await authService.createUser(email, hashedPassword, avatarURL,false,verificationToken);
         await emailSender.sendVerificationEmail(email, verificationToken);
        
 
@@ -44,14 +44,12 @@ export const register = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
     try {
         const { verificationToken } = req.params;
-
-        if (!verificationToken) {
-            throw HttpError(400, 'Verification token is required');
-        }
-
-        const user = await authService.getUserByVerificationToken(
+        const user = await authService.findUserByVerificationToken(
             verificationToken
         );
+      
+
+       
 
         if (!user) {
             throw HttpError(404, 'User not found');
