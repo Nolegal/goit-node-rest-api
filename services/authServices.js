@@ -9,7 +9,9 @@ async function createUser(email, password, avatarURL,verify = false, verificatio
 async function getUserById(userId) {
     return await User.findByPk(userId);
 }
-
+async function findUserByVerificationToken(verificationToken) {
+  return User.findOne({ where: { verificationToken } });
+}
 async function getUserByEmail(email) {
     return await User.findOne({ where: { email } });
 }
@@ -49,4 +51,5 @@ export default {
     updateUserToken,
     updateUserVerification,
     updateUserAvatar,
+    findUserByVerificationToken
 };
